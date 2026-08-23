@@ -44,27 +44,20 @@ Answer:
 3. Why is working from an R Project preferable to manually setting the working directory?
 **Working from an R Project keeps project files organized under a consistent directory and makes file paths easier to manage. This improves reproducibility because files can be referenced relative to the project instead of requiring manual or sporadic changes to the directory** 
 
-
-
 # Part 5: Create the Folder Structure
 
-Create the following folders:
-
-```text
-data
-figures
-scripts
-tables
-assignments
-labs
-portfolio
-```
-
-Use a character vector and a tidy workflow rather than repeating `dir.create()` seven times.
+**The following labeled folders were created:**
+**-Data**
+**-Figures**
+**-Scripts**
+**-Tables**
+**-Assignments**
+**-Labs**
+**-Portfolio**
 
 ## Added Tool for my Personal Understanding
 
-**The required course folders were created previously in the main DataVisualization folder. Because this lab is stored within the Labs subfolder, ".." moves up one level to the main course folder before confirming or creating the required directories.**
+**The required course folders were created previously in the main DataVisualization folder. Because here() now correctly identifies the main DataVisualization folder as the project root, each required directory can be referenced directly without moving up a level.**
 
 ```{r}
 #| label: create-folder-structure
@@ -79,14 +72,10 @@ folders <- c(
   "portfolio"
 )
 folders %>%
-  walk(~ dir_create(here("..",.x)))
+  walk(~ dir_create(here(.x)))
 ```
 
-Confirm that the folders appear in the Files pane.
-
 # Part 6: Inspect the Folder Structure
-
-Use `dir_ls()` to list the top-level contents of the project.
 
 ```{r}
 #| label: inspect-folder-structure1
@@ -100,11 +89,9 @@ dir_ls()
 dir_ls(here(".."))
 ```
 
-
 # Part 7: Create a Simulated Public Health Dataset
 
 Create a reproducible county-level dataset with the following variables:
-
 
 - Include 12 fictional counties.
 **Schnauzer County, Quarto County, Clifton County, Creek County, Midtown County, Cascade County, Mustard County, Hydrant County, Dove County, French County, Green County, Corinth County**
@@ -112,13 +99,7 @@ Create a reproducible county-level dataset with the following variables:
 - Include three regions: North, Central, and South.
 **North Region, Central Region, South Region**
 
-- Use `set.seed(716)`.
-- Generate plausible values for population, visits, and vaccination coverage.
-- Calculate asthma visit rate per 100,000.
-- Round the rate to one decimal place.
-- Use tidy formatting.
-
-# Because we don't want to manually generate random values for 12 counties, we're going to generate codes for random selection. Each requested category will have its own code chunk instead of one large chunk to reduce errors and gradually build the dataset.
+# Because we don't want to manually generate random values for 12 counties, we're going to generate codes for random selection. Each requested category will have its own code chunk instead of one large chunk to reduce errors and gradually build the data-set.
 
 ## Counties
 ```{r}
@@ -216,18 +197,8 @@ county_health_data <- county_health_data %>%
   )
 ```
 
+# Part 8: Save the Dataset to the Data folder
 
-Display the completed dataset.
-
-# Part 8: Save the Dataset
-
-Save the dataset as:
-
-```text
-data/county_health_data.csv
-```
-
-## Saving the dataset to the Data folder
 ```{r}
 #| label: save-simulated-health-data
 
@@ -238,19 +209,13 @@ write_csv(
 )
 ```
 
-Confirm that the CSV file appears inside `data/`.
-
-# Part 9: Remove and Re-Import the Dataset
-
-Remove the object from the environment.
+# Part 9: Removing and Re-Importing the Dataset
 
 ```{r}
 #| label: remove-health-data
 
 rm(county_health_data)
 ```
-
-Then re-import the CSV file using `read_csv()` and `here()`.
 
 ```{r}
 #| label: import-health-data
@@ -262,19 +227,15 @@ county_health_data <- read_csv(
 
 # Part 10: Inspect the Data
 
-Use `glimpse()`.
-
 ```{r}
 #| label: inspect-health-data
 
 glimpse(county_health_data)
 ```
 
-Create a one-row summary containing:
 
-- number of counties,
-- mean vaccination rate,
-- median asthma visit rate.
+## Creating a one row summary
+**Summary will contain number of counties, mean vaccination rate, and median asthma visit rate**
 
 ```{r}
 #| label: summarize-health-data
@@ -286,8 +247,6 @@ county_health_data %>%
     median_asthma_visit_rate = median(asthma_visit_rate)
   )
 ```
-
-Answer:
 
 1. What does one row represent?
 **One row represents one county and the correlating data.**
@@ -306,18 +265,7 @@ Answer:
 
 # Part 11: Create a Ranked Vaccination Bar Chart
 
-Create a horizontal bar chart ranking counties by vaccination coverage.
-
-Requirements:
-
-- Reorder counties by vaccination rate.
-- Add a dashed reference line at 80%.
-- Use an informative title and subtitle.
-- Label the y-axis as vaccination coverage.
-- State that the values are simulated.
-- Use a readable theme.
-- Store the graph as `vaccination_plot`.
-#Running Package Chunk Again
+## Rerunning Package Chunk
 ```{r}
 #| label: Reloading-datasets
 
@@ -372,8 +320,9 @@ vaccination_plot <- vaccination_plot +
 
 vaccination_plot
 ```
+
 ### Creating a target category
-We're adding a variable to indicate whether each county is at/above 80% or below 80%
+**Adding a variable to indicate whether each county is at/above 80% or below 80%**
 ```{r}
 #| label: creating-percentage-variable
 
@@ -404,7 +353,7 @@ vaccination_plot <- ggplot(
   geom_col()
 ```
 
-### Color Coding the graph
+### Color coding the graph
 ```{r}
 #| label: Color-coding-graph
 vaccination_plot <- vaccination_plot +
@@ -446,7 +395,8 @@ vaccination_plot <- ggplot(
 
 vaccination_plot
 ```
-### Changing the Axes
+
+### Changing the axes
 ```{r}
 #| label: Changing-graph-axes
 
@@ -476,6 +426,7 @@ vaccination_plot <- ggplot(
 
 vaccination_plot
 ```
+
 ### Re Adding the 80% reference line and subtitles
 ```{r}
 #| label: readding-reference-line-and-subtitles
@@ -495,9 +446,8 @@ vaccination_plot <- vaccination_plot +
 
 vaccination_plot
 ```
-# Part 12: Interpret the Figure
 
-Answer in two or three complete sentences.
+# Part 12: Interpret the Figure
 
 1. What pattern does the figure show?
 2. Which counties appear furthest below the target?
@@ -507,19 +457,7 @@ Answer in two or three complete sentences.
 
 # Part 13: Save the Vaccination Figure
 
-Save the graph as:
-
-```text
-figures/lab01_vaccination_coverage.png
-```
-
-Use:
-
-- width of 8 inches,
-- height of 6 inches,
-- resolution of 300 dpi.
-
-## Reloading these libraries so the vaccination plot works.
+## Reloading the libraries 
 ```{r}
 #| label: reloading-libraries
 
@@ -541,26 +479,11 @@ ggsave(
   dpi = 300
 )
 ```
-**Learned that inches are the default units for ggsave!**
+
 
 # Part 14: Independent Visualization
 
-Create one additional visualization using the same dataset.
-
-Choose one:
-
-- scatterplot of adult population and asthma visits,
-- bar chart of mean vaccination coverage by region,
-- dot plot of asthma visit rates by county,
-- or another instructor-approved graph.
-
-Requirements:
-
-- Store the graph as `independent_plot`.
-- Include an informative title and subtitle.
-- Label both axes clearly.
-- Add a caption identifying the data as simulated.
-- Use a readable theme.
+## Creating one additional visualization using the same dataset.
 
 ## Scatterplot of Adult Population
 
@@ -599,18 +522,6 @@ independent_plot
 
 # Part 15: Save the Independent Figure
 
-Save the graph as:
-
-```text
-figures/lab01_independent_visualization.png
-```
-
-Use:
-
-- width of 8 inches,
-- height of 5 inches,
-- resolution of 300 dpi.
-
 ```{r}
 #| label: save-independent-visualization
 ggsave(
@@ -626,66 +537,52 @@ ggsave(
 
 # Part 16: Tidy Coding Check
 
-Review your code and confirm:
-
-- [ ] `%>%` is used instead of the native pipe
-- [ ] one major function appears per line
-- [ ] arguments are indented consistently
-- [ ] object names are descriptive
-- [ ] no `setwd()` appears
-- [ ] no absolute file paths appear
-- [ ] code chunks have labels
+**`%>%` is used instead of the native pipe, one major function appears per line, arguments are indented consistently, object names are descriptive, no `setwd()` appears, no absolute file paths appear and all code chunks have labels.**
 
 # Part 17: Git and GitHub
 
-Complete the following:
+**This portion of the lab required more troubleshooting than originally anticipated because I had not completed all of the recommended Git and GitHub preparation in advance. As a result, I encountered several issues involving project organization, relative file paths, repository initialization, file staging, and GitHub authentication. These challenges ultimately provided a practical demonstration of why establishing the project structure and version-control environment early is an important part of a reproducible workflow.**
 
-1. Open the Git pane.
-2. Review the changed files.
-3. Stage the files associated with this lab.
-4. Commit using a meaningful message.
-5. Push to GitHub.
-6. Open the repository online and verify that the files appear.
+**The project was initially associated with an incorrect project location, which caused here() to reference the wrong directory. After correcting the project location and relative paths, the R environment was restarted, required packages and objects were reloaded, the code was rerun, and the Quarto document was rendered again. Rendering also helped identify and correct issues such as duplicate chunk labels and a syntax error that may otherwise have remained unnoticed.**
 
-Suggested commit message:
+**Git was then initialized for the correct project directory. Because the directory contained files unrelated to this lab, I reviewed the untracked files and selectively staged only the five files associated with Lab 1. These were committed to the main branch using the message Complete Lab 1 reproducible workflow.**
 
-```text
-Complete Lab 1 reproducible workflow
-```
+**Finally, I created and connected the local repository to a GitHub repository. Initial attempts to authenticate through HTTPS using a personal access token were unsuccessful, so I configured SSH authentication instead. An ED25519 SSH key was generated locally, added to GitHub, and the repository remote was changed from HTTPS to SSH. The project was then successfully pushed to GitHub and verified online.**
+
+**Overall, this process reinforced that reproducibility involves more than writing code that runs. It also depends on consistent project organization, relative file paths, a clean computing environment, intentional version control, and properly configured tools for sharing the work. Completing the recommended setup earlier would have prevented several of these complications, but troubleshooting them helped me better understand how each component of the workflow functions together.**
 
 # Reflection Questions
 
-Answer each question in complete sentences.
 
 ## Question 1
 
 Why is reproducibility important in public health research and practice?
 
-**Response:**  
+**Research findings and data may be used to inform programs, policies, and decisions that affect entire populations. A reproducible workflow allows others to understand how results were produced, verify the process, and repeat the analysis when necessary. It also helps ensure that the work can still be understood and recreated even after time has passed or the project has been transferred to someone else.**  
 
 ## Question 2
 
 How does a consistent project structure improve collaboration and review?
 
-**Response:**  
+**Consistent project structure makes it easier for collaborators and reviewers to understand where data, figures, scripts, tables, and other materials are stored without having to search through an entire project. It also creates a shared organizational system, which reduces confusion when multiple people are working with the same files. This lab showed me that organization is not just about preference; the location and structure of files can directly affect whether code runs correctly.**  
 
 ## Question 3
 
 Why are relative paths preferable to absolute paths?
 
-**Response:**  
+**They reference files based on their location within the project rather than a location that is specific to one person's computer. An absolute path may work on my computer but fail when another person opens the project because their username, folders, or file locations are different. Using relative paths makes the project more portable and allows the same code to work across different computers as long as the project structure remains consistent.**  
 
 ## Question 4
 
 How does GitHub contribute to reproducibility?
 
-**Response:**  
+**GitHub contributes to reproducibility by providing a central location where project files and changes can be stored and tracked over time. Git commits create a history of the work, which makes it possible to see what changed and when instead of relying on multiple disconnected versions of the same file. GitHub also allows collaborators or reviewers to access the same materials used to produce an analysis, which supports transparency and makes the work easier to reproduce.**  
 
 ## Question 5
 
 What was the most challenging part of the lab?
 
-**Response:**  
+**The most challenging part of the lab was configuring the project and Git/GitHub workflow, particularly because I had not completed all of the recommended setup in advance. I encountered issues involving the project location, relative paths, an empty R environment after restarting, selective file staging, and GitHub authentication. Although troubleshooting these issues took additional time, it helped me understand why the setup steps matter and how the different parts of a reproducible workflow depend on one another. By the end of the lab, I was able to rerun the analysis from a clean environment, render the document successfully, selectively commit the required files, and push the completed project to GitHub using SSH authentication.**  
 
 # Deliverables
 
@@ -715,57 +612,4 @@ Before submitting, confirm:
 - [ ] work is committed and pushed
 - [ ] no private or sensitive information was uploaded
 
-# Troubleshooting
 
-# Dataset Cannot Be Found
-
-Check:
-
-- file location,
-- spelling,
-- capitalization,
-- project root,
-- and use of `here()`.
-
-# Package Is Missing
-
-Install the package in the Console:
-
-```r
-install.packages("package_name")
-```
-
-Do not place package-installation commands in the final lab.
-
-# Quarto Will Not Render
-
-Read the first error message and check:
-
-- commas,
-- parentheses,
-- quotation marks,
-- object names,
-- and package availability.
-
-# Git Pane Is Missing
-
-Confirm:
-
-- Git is installed,
-- the project is a Git repository,
-- and the correct project is open.
-
-# Stretch Challenge
-
-Improve one graph by adding one of the following:
-
-- direct labels,
-- a colorblind-friendly palette,
-- an annotation,
-- or a meaningful highlight.
-
-Write two sentences explaining why the change improves communication.
-
-# Looking Ahead
-
-In Lab 2, you will use the Grammar of Graphics to build and compare several visualization types for different public health questions.
