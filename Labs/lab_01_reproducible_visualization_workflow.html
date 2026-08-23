@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>lab_01_reproducible_visualization_workflow</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="lab_01_reproducible_visualization_workflow_files/libs/clipboard/clipboard.min.js"></script>
+<script src="lab_01_reproducible_visualization_workflow_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="lab_01_reproducible_visualization_workflow_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="lab_01_reproducible_visualization_workflow_files/libs/quarto-html/popper.min.js"></script>
+<script src="lab_01_reproducible_visualization_workflow_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="lab_01_reproducible_visualization_workflow_files/libs/quarto-html/anchor.min.js"></script>
+<link href="lab_01_reproducible_visualization_workflow_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="lab_01_reproducible_visualization_workflow_files/libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="lab_01_reproducible_visualization_workflow_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="lab_01_reproducible_visualization_workflow_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="lab_01_reproducible_visualization_workflow_files/libs/bootstrap/bootstrap-138a6193a3bd40baf1e627da441a4734.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"Lab 1: Reproducible Data Visualization Workflow"</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">author</span><span class="kw">:</span><span class="at"> </span><span class="st">"Chloe Smith"</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">format</span><span class="kw">:</span><span class="at"> </span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">html</span><span class="kw">:</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">toc</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">code-copy</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">code-tools</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">execute</span><span class="kw">:</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">warning</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">message</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="part-3-load-the-required-packages" class="level1">
+<h1>Part 3: Load the Required Packages</h1>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"tidyverse"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.2.1     ✔ readr     2.2.0
+✔ forcats   1.0.1     ✔ stringr   1.6.0
+✔ ggplot2   4.0.3     ✔ tibble    3.3.1
+✔ lubridate 1.9.5     ✔ tidyr     1.3.2
+✔ purrr     1.2.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"here"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>here() starts at /Users/chlsmith-25/Documents/DataVisualization</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"fs"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="part-4-confirm-the-project-root" class="level1">
+<h1>Part 4: Confirm the Project Root</h1>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">here</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "/Users/chlsmith-25/Documents/DataVisualization"</code></pre>
+</div>
+</div>
+<p>Answer:</p>
+<ol type="1">
+<li><p>What path was printed? <strong>“/Users/chlsmith-25/Documents/DataVisualization/Labs”</strong></p></li>
+<li><p>Does it point to the correct course project? <strong>Yes, the path points to the correct location for the course project and the Labs sub-folder where this assignment is stored.</strong></p></li>
+<li><p>Why is working from an R Project preferable to manually setting the working directory? <strong>Working from an R Project keeps project files organized under a consistent directory and makes file paths easier to manage. This improves reproducibility because files can be referenced relative to the project instead of requiring manual or sporadic changes to the directory</strong></p></li>
+</ol>
+</section>
+<section id="part-5-create-the-folder-structure" class="level1">
+<h1>Part 5: Create the Folder Structure</h1>
+<p>Create the following folders:</p>
+<pre class="text"><code>data
+figures
+scripts
+tables
+assignments
+labs
+portfolio</code></pre>
+<p>Use a character vector and a tidy workflow rather than repeating <code>dir.create()</code> seven times.</p>
+<section id="added-tool-for-my-personal-understanding" class="level2">
+<h2 class="anchored" data-anchor-id="added-tool-for-my-personal-understanding">Added Tool for my Personal Understanding</h2>
+<p><strong>The required course folders were created previously in the main DataVisualization folder. Because this lab is stored within the Labs subfolder, “..” moves up one level to the main course folder before confirming or creating the required directories.</strong></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>folders <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data"</span>,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"figures"</span>,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"scripts"</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"tables"</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"assignments"</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"labs"</span>,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"portfolio"</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>folders <span class="sc">%&gt;%</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">walk</span>(<span class="sc">~</span> <span class="fu">dir_create</span>(<span class="fu">here</span>(<span class="st">".."</span>,.x)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Confirm that the folders appear in the Files pane.</p>
+</section>
+</section>
+<section id="part-6-inspect-the-folder-structure" class="level1">
+<h1>Part 6: Inspect the Folder Structure</h1>
+<p>Use <code>dir_ls()</code> to list the top-level contents of the project.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dir_ls</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Untitled.html
+Untitled.qmd
+Untitled_files
+lab_01_reproducible_visualization_workflow.html
+lab_01_reproducible_visualization_workflow.qmd
+lab_01_reproducible_visualization_workflow.qmd .html
+lab_01_reproducible_visualization_workflow.qmd _files
+lab_01_reproducible_visualization_workflow.rmarkdown
+lab_01_reproducible_visualization_workflow_files</code></pre>
+</div>
+</div>
+<section id="adjusting-the-code-to-list-top-level-project-contents" class="level2">
+<h2 class="anchored" data-anchor-id="adjusting-the-code-to-list-top-level-project-contents">Adjusting the code to list top level project contents</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dir_ls</span>(<span class="fu">here</span>(<span class="st">".."</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>/Users/chlsmith-25/Documents/DataVisualization/../! GA CTSA CE Steering Board Name List.xlsx
+/Users/chlsmith-25/Documents/DataVisualization/../2024 FEDERAL RETURN 2.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../2024 Georgia State Income Tax Return Form.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../2024 Louisiana State Income Tax Return Form.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../AMENDED RETURN 2024 FEDERAL INCOME TAX RETURN.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../Advocates for Youth Logo.png
+/Users/chlsmith-25/Documents/DataVisualization/../Applied Practice Experience Agreement Form (A).pdf
+/Users/chlsmith-25/Documents/DataVisualization/../Applied Practice Experience Site Profile and Proposal Form.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../Before I Let Go - Family Planning Gathering Registration List.xlsx
+/Users/chlsmith-25/Documents/DataVisualization/../Before I Let Go - Family Planning Gathering, 09_23_2025.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../CRUISE DOCUMENTS 05_16.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../CSMITH Apex Agreement.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../CSmith APEX Form.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../CSmith APEX| Applied Practice Experience Site Profile and Proposal Form.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../CSmith Account Summary Overview 07.17.26
+/Users/chlsmith-25/Documents/DataVisualization/../CSmith CommuniTEA W-9 2026.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../CSmith Fall 26 Schedule.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../CSmith Research Methods Midterm Examination (Spring 2026).docx
+/Users/chlsmith-25/Documents/DataVisualization/../CSmith Research Methods Midterm Examination (Spring 2026).pdf
+/Users/chlsmith-25/Documents/DataVisualization/../CSmith Resume 0825 PDF.PDF
+/Users/chlsmith-25/Documents/DataVisualization/../CTSA Grant Renewal Sources.Data
+/Users/chlsmith-25/Documents/DataVisualization/../CTSA Grant Renewal Sources.enl
+/Users/chlsmith-25/Documents/DataVisualization/../Chicago Theological Seminary - AME Celebration Registration List.xlsx
+/Users/chlsmith-25/Documents/DataVisualization/../Chicago Theological Seminary 03_06_2025_ AI For Faith Leaders Registration List.xlsx
+/Users/chlsmith-25/Documents/DataVisualization/../Chloe ASPHN Poster presentation.jpeg
+/Users/chlsmith-25/Documents/DataVisualization/../Chloe Smith Letter of Recommendation 04_20.docx
+/Users/chlsmith-25/Documents/DataVisualization/../CommuniTEA Spring 2026 Intervention Report.docx
+/Users/chlsmith-25/Documents/DataVisualization/../Contact_GA_CTSA Follow-Up Survey Incentive Recipients.xlsx
+/Users/chlsmith-25/Documents/DataVisualization/../Copy of CSmith Timesheet 06_07_26.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../DataVisualization
+/Users/chlsmith-25/Documents/DataVisualization/../Empowerment Resource Center Logo.png
+/Users/chlsmith-25/Documents/DataVisualization/../FEDERAL RETURN APRIL 2025.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../FK2A2219.JPG
+/Users/chlsmith-25/Documents/DataVisualization/../GA CTSA Infographic .docx
+/Users/chlsmith-25/Documents/DataVisualization/../GA TECH 08.07 Retreat Catering Invoice
+/Users/chlsmith-25/Documents/DataVisualization/../GEORGIA AMENDED RETURN 1.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../GEORGIA AMENDED RETURN 2024.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../GEORGIA RETURN APRIL 2025.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../Goinsxmasphoto.html
+/Users/chlsmith-25/Documents/DataVisualization/../Goinsxmasphoto_files
+/Users/chlsmith-25/Documents/DataVisualization/../HR SEMINAR MARCH 31 FLYER.png
+/Users/chlsmith-25/Documents/DataVisualization/../ILLINOIS AMENDED FORM 3.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../ILLINOIS AMENDED FORM.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../ILLINOIS AMENDED RETURN 1 2024.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../ILLINOIS AMENDED RETURN 2.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../ILLINOIS RETURN APRIL 2025.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../IMG_1384.MOV
+/Users/chlsmith-25/Documents/DataVisualization/../IMG_1385.HEIC
+/Users/chlsmith-25/Documents/DataVisualization/../IMG_1386.HEIC
+/Users/chlsmith-25/Documents/DataVisualization/../LEADERSHIP CUT #1.mp4
+/Users/chlsmith-25/Documents/DataVisualization/../LEADERSHIP CUT #2.mp4
+/Users/chlsmith-25/Documents/DataVisualization/../LOUISIANA RETURN 2024.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../Leadership Call 02_13 transcript.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../LifeVac Mask.webp
+/Users/chlsmith-25/Documents/DataVisualization/../MBA-Brochure--Final.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../MQDs Record.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../MSM | Chloe Smith| Unofficial Transcript.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../PDF Nametag CTSA LIST.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../PayStub20260724.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../R &amp; Health Science
+/Users/chlsmith-25/Documents/DataVisualization/../Retreat Catering Invoice 08.07.26
+/Users/chlsmith-25/Documents/DataVisualization/../Rooted in Dignity.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../Senvok Mask.webp
+/Users/chlsmith-25/Documents/DataVisualization/../Smith-Chloe-TOTAL CliftonStrengths Results.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../Sustainability | Fall 2026
+/Users/chlsmith-25/Documents/DataVisualization/../Travel Insurance Brochure.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../Wage and Hour Training.html
+/Users/chlsmith-25/Documents/DataVisualization/../Wage and Hour Training_files
+/Users/chlsmith-25/Documents/DataVisualization/../Zoom
+/Users/chlsmith-25/Documents/DataVisualization/../assignments
+/Users/chlsmith-25/Documents/DataVisualization/../data
+/Users/chlsmith-25/Documents/DataVisualization/../federal 1040.pdf
+/Users/chlsmith-25/Documents/DataVisualization/../figures
+/Users/chlsmith-25/Documents/DataVisualization/../labs
+/Users/chlsmith-25/Documents/DataVisualization/../portfolio
+/Users/chlsmith-25/Documents/DataVisualization/../scripts
+/Users/chlsmith-25/Documents/DataVisualization/../tables</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="part-7-create-a-simulated-public-health-dataset" class="level1">
+<h1>Part 7: Create a Simulated Public Health Dataset</h1>
+<p>Create a reproducible county-level dataset with the following variables:</p>
+<ul>
+<li><p>Include 12 fictional counties. <strong>Schnauzer County, Quarto County, Clifton County, Creek County, Midtown County, Cascade County, Mustard County, Hydrant County, Dove County, French County, Green County, Corinth County</strong></p></li>
+<li><p>Include three regions: North, Central, and South. <strong>North Region, Central Region, South Region</strong></p></li>
+<li><p>Use <code>set.seed(716)</code>.</p></li>
+<li><p>Generate plausible values for population, visits, and vaccination coverage.</p></li>
+<li><p>Calculate asthma visit rate per 100,000.</p></li>
+<li><p>Round the rate to one decimal place.</p></li>
+<li><p>Use tidy formatting.</p></li>
+</ul>
+</section>
+<section id="because-we-dont-want-to-manually-generate-random-values-for-12-counties-were-going-to-generate-codes-for-random-selection.-each-requested-category-will-have-its-own-code-chunk-instead-of-one-large-chunk-to-reduce-errors-and-gradually-build-the-dataset." class="level1">
+<h1>Because we don’t want to manually generate random values for 12 counties, we’re going to generate codes for random selection. Each requested category will have its own code chunk instead of one large chunk to reduce errors and gradually build the dataset.</h1>
+<section id="counties" class="level2">
+<h2 class="anchored" data-anchor-id="counties">Counties</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">716</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>county_health_data <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">county =</span> <span class="fu">c</span>(</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Schauzer County"</span>,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Quarto County"</span>,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Clifton County"</span>,</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Creek County"</span>,</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Midtown County"</span>,</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Cascade County"</span>,</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Mustard County"</span>,</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Hydrant County"</span>,</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Dove County"</span>,</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"French County"</span>,</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Green County"</span>,</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Corinth County"</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>),</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="regions" class="level2">
+<h2 class="anchored" data-anchor-id="regions">Regions</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>county_health_data <span class="ot">&lt;-</span> county_health_data <span class="sc">%&gt;%</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="at">region =</span> <span class="fu">rep</span>(</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(<span class="st">"North"</span>, <span class="st">"Central"</span>, <span class="st">"South"</span>),</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">each =</span> <span class="dv">4</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="populations" class="level2">
+<h2 class="anchored" data-anchor-id="populations">Populations</h2>
+<p><strong>Assigning each county a random adult population between 40,000 and 180,000</strong></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>county_health_data <span class="ot">&lt;-</span> county_health_data <span class="sc">%&gt;%</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="at">adult_population =</span> <span class="fu">sample</span>(</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="dv">40000</span><span class="sc">:</span><span class="dv">180000</span>,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="dv">12</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="vaccination-rates" class="level2">
+<h2 class="anchored" data-anchor-id="vaccination-rates">Vaccination Rates</h2>
+<p><strong>Assigning vaccination coverage between 62% and 94%</strong></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>county_health_data <span class="ot">&lt;-</span> county_health_data <span class="sc">%&gt;%</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="at">vaccination_rate =</span> <span class="fu">round</span>(</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">runif</span>(</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="dv">12</span>,</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">min =</span> <span class="dv">62</span>,</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">max =</span> <span class="dv">94</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="asthma-rates-per-100000" class="level2">
+<h2 class="anchored" data-anchor-id="asthma-rates-per-100000">Asthma Rates Per 100,000</h2>
+<p><strong>Generating asthma visits proportionally with “runif”</strong> <strong>Calculating asthma visit rate per 100,000 people</strong></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>county_health_data <span class="ot">&lt;-</span> county_health_data <span class="sc">%&gt;%</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">asthma_visits =</span> <span class="fu">round</span>(</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>      adult_population <span class="sc">*</span> <span class="fu">runif</span>(</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>        <span class="dv">12</span>,</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">min =</span> <span class="fl">0.004</span>,</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">max =</span> <span class="fl">0.018</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>     )</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">asthma_visit_rate =</span> <span class="fu">round</span>(</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    asthma_visits <span class="sc">/</span> adult_population <span class="sc">*</span> <span class="dv">100000</span>,</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    <span class="dv">1</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Display the completed dataset.</p>
+</section>
+</section>
+<section id="part-8-save-the-dataset" class="level1">
+<h1>Part 8: Save the Dataset</h1>
+<p>Save the dataset as:</p>
+<pre class="text"><code>data/county_health_data.csv</code></pre>
+<section id="saving-the-dataset-to-the-data-folder" class="level2">
+<h2 class="anchored" data-anchor-id="saving-the-dataset-to-the-data-folder">Saving the dataset to the Data folder</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  county_health_data,</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">here</span>(<span class="st">"Data"</span>, <span class="st">"county_health_data.csv"</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Confirm that the CSV file appears inside <code>data/</code>.</p>
+</section>
+</section>
+<section id="part-9-remove-and-re-import-the-dataset" class="level1">
+<h1>Part 9: Remove and Re-Import the Dataset</h1>
+<p>Remove the object from the environment.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(county_health_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Then re-import the CSV file using <code>read_csv()</code> and <code>here()</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>county_health_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">here</span>(<span class="st">"Data"</span>, <span class="st">"county_health_data.csv"</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 12 Columns: 6
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (2): county, region
+dbl (4): adult_population, vaccination_rate, asthma_visits, asthma_visit_rate
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+</section>
+<section id="part-10-inspect-the-data" class="level1">
+<h1>Part 10: Inspect the Data</h1>
+<p>Use <code>glimpse()</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(county_health_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 12
+Columns: 6
+$ county            &lt;chr&gt; "Schauzer County", "Quarto County", "Clifton County"…
+$ region            &lt;chr&gt; "North", "North", "North", "North", "Central", "Cent…
+$ adult_population  &lt;dbl&gt; 169110, 154751, 133101, 152030, 166571, 96339, 15638…
+$ vaccination_rate  &lt;dbl&gt; 84.4, 73.3, 80.6, 68.5, 88.0, 80.6, 85.0, 84.7, 79.6…
+$ asthma_visits     &lt;dbl&gt; 1587, 2664, 1254, 1817, 1495, 1644, 1457, 1610, 312,…
+$ asthma_visit_rate &lt;dbl&gt; 938.4, 1721.5, 942.1, 1195.2, 897.5, 1706.5, 931.7, …</code></pre>
+</div>
+</div>
+<p>Create a one-row summary containing:</p>
+<ul>
+<li>number of counties,</li>
+<li>mean vaccination rate,</li>
+<li>median asthma visit rate.</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>county_health_data <span class="sc">%&gt;%</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">number_of_counties =</span> <span class="fu">n</span>(),</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_vaccination_rate =</span> <span class="fu">mean</span>(vaccination_rate),</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">median_asthma_visit_rate =</span> <span class="fu">median</span>(asthma_visit_rate)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  number_of_counties mean_vaccination_rate median_asthma_visit_rate
+               &lt;int&gt;                 &lt;dbl&gt;                    &lt;dbl&gt;
+1                 12                  81.6                     940.</code></pre>
+</div>
+</div>
+<p>Answer:</p>
+<ol type="1">
+<li><p>What does one row represent? <strong>One row represents one county and the correlating data.</strong></p></li>
+<li><p>How many variables are included? <strong>There are three variables included. in the summary. There are six variables total.</strong></p></li>
+<li><p>Which variables are categorical? <strong>None of the variables shown are categorical. However, considering the entire data set, county name and region are categorical. </strong></p></li>
+<li><p>Which variables are numeric? <strong>All three shown variables are numeric. Considering the entire data set, number of counties, mean vaccination rate, and median asthma visit rate are numeric</strong></p></li>
+<li><p>Which variable should be used to compare asthma burden fairly across counties? <strong>Asthma visit rate should be used because it expresses asthma visits per 100,000 adults.</strong></p></li>
+</ol>
+</section>
+<section id="part-11-create-a-ranked-vaccination-bar-chart" class="level1">
+<h1>Part 11: Create a Ranked Vaccination Bar Chart</h1>
+<p>Create a horizontal bar chart ranking counties by vaccination coverage.</p>
+<p>Requirements:</p>
+<ul>
+<li>Reorder counties by vaccination rate.</li>
+<li>Add a dashed reference line at 80%.</li>
+<li>Use an informative title and subtitle.</li>
+<li>Label the y-axis as vaccination coverage.</li>
+<li>State that the values are simulated.</li>
+<li>Use a readable theme.</li>
+<li>Store the graph as <code>vaccination_plot</code>. #Running Package Chunk Again</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="creating-and-saving-the-graph-under-vaccination-plot" class="level2">
+<h2 class="anchored" data-anchor-id="creating-and-saving-the-graph-under-vaccination-plot">Creating and saving the graph under “Vaccination Plot”</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>vaccination_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  county_health_data,</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> vaccination_rate,</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">reorder</span>(county, vaccination_rate)</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="adding-the-80-line" class="level2">
+<h2 class="anchored" data-anchor-id="adding-the-80-line">Adding the 80% line</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>vaccination_plot <span class="ot">&lt;-</span> vaccination_plot <span class="sc">+</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">xintercept =</span> <span class="dv">80</span>,</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">linetype =</span> <span class="st">"dashed"</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="adding-labels" class="level2">
+<h2 class="anchored" data-anchor-id="adding-labels">Adding Labels</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>vaccination_plot <span class="ot">&lt;-</span> vaccination_plot <span class="sc">+</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Vaccination Coverage Across Fictional Counties"</span>,</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"County vaccination coverage compared with an 80% reference level"</span>,</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Vaccination Coverage (%)"</span>,</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="cn">NULL</span>,</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Values are simulated."</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>vaccination_plot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_01_reproducible_visualization_workflow_files/figure-html/Add-labels-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="creating-a-target-category" class="level3">
+<h3 class="anchored" data-anchor-id="creating-a-target-category">Creating a target category</h3>
+<p>We’re adding a variable to indicate whether each county is at/above 80% or below 80%</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>county_health_data <span class="ot">&lt;-</span> county_health_data <span class="sc">%&gt;%</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">vaccination_status =</span> <span class="fu">if_else</span>(</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>      vaccination_rate <span class="sc">&gt;=</span> <span class="dv">80</span>,</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Meets 80% Target"</span>,</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Below 80% Target"</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="updating-the-graph" class="level3">
+<h3 class="anchored" data-anchor-id="updating-the-graph">Updating the graph</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>vaccination_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  county_health_data,</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> vaccination_rate,</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">reorder</span>(county, vaccination_rate),</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> vaccination_status</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="color-coding-the-graph" class="level3">
+<h3 class="anchored" data-anchor-id="color-coding-the-graph">Color Coding the graph</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>vaccination_plot <span class="ot">&lt;-</span> vaccination_plot <span class="sc">+</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Below 80% Target"</span> <span class="ot">=</span> <span class="st">"#DEF67C"</span>,</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Meets 80% Target"</span> <span class="ot">=</span> <span class="st">"#E0F0FF"</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">"Vaccination Status"</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>vaccination_plot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_01_reproducible_visualization_workflow_files/figure-html/Color-coding-graph-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="adding-black-borders" class="level3">
+<h3 class="anchored" data-anchor-id="adding-black-borders">Adding black borders</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>vaccination_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  county_health_data,</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> vaccination_rate,</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">reorder</span>(county, vaccination_rate),</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> vaccination_status</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"black"</span></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(</span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Vaccination Status"</span>,</span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(</span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Below 80% Target"</span> <span class="ot">=</span> <span class="st">"#DEF67C"</span>,</span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Meets 80% Target"</span> <span class="ot">=</span> <span class="st">"#E0F0FF"</span></span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a>vaccination_plot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_01_reproducible_visualization_workflow_files/figure-html/Adding-black-borders-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="changing-the-axes" class="level3">
+<h3 class="anchored" data-anchor-id="changing-the-axes">Changing the Axes</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>vaccination_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  county_health_data,</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> vaccination_rate,</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">reorder</span>(county, vaccination_rate),</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> vaccination_status</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(</span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"black"</span></span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(</span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Vaccination Status"</span>,</span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(</span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Below 80% Target"</span> <span class="ot">=</span> <span class="st">"#DEF67C"</span>,</span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Meets 80% Target"</span> <span class="ot">=</span> <span class="st">"#E0F0FF"</span></span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Vaccination Coverage (%)"</span>,</span>
+<span id="cb37-21"><a href="#cb37-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"County"</span></span>
+<span id="cb37-22"><a href="#cb37-22" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb37-23"><a href="#cb37-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-24"><a href="#cb37-24" aria-hidden="true" tabindex="-1"></a>vaccination_plot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_01_reproducible_visualization_workflow_files/figure-html/Changing-graph-axes-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="re-adding-the-80-reference-line-and-subtitles" class="level3">
+<h3 class="anchored" data-anchor-id="re-adding-the-80-reference-line-and-subtitles">Re Adding the 80% reference line and subtitles</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>vaccination_plot <span class="ot">&lt;-</span> vaccination_plot <span class="sc">+</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">xintercept =</span> <span class="dv">80</span>,</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">linetype =</span> <span class="st">"dashed"</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Vaccination Coverage Across Fictional Counties"</span>,</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"County vaccination coverage compared with an 80% reference level"</span>,</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Values are simulated."</span></span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>vaccination_plot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_01_reproducible_visualization_workflow_files/figure-html/readding-reference-line-and-subtitles-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="part-12-interpret-the-figure" class="level1">
+<h1>Part 12: Interpret the Figure</h1>
+<p>Answer in two or three complete sentences.</p>
+<ol type="1">
+<li>What pattern does the figure show?</li>
+<li>Which counties appear furthest below the target?</li>
+<li>What context would be required before using this graph for a real decision?</li>
+</ol>
+<p><strong>The figure shows differences in simulated vaccination coverage across the 12 counties, with only Corinth County and French County reaching the 80% target. Green County and Dove County are furthest below the target, while Quarto County comes very close to meeting it. Before using this graph to guide a real decision, more information would be needed about the population of each county, the source and quality of the vaccination data, and factors that could contribute to differences in coverage.</strong></p>
+</section>
+<section id="part-13-save-the-vaccination-figure" class="level1">
+<h1>Part 13: Save the Vaccination Figure</h1>
+<p>Save the graph as:</p>
+<pre class="text"><code>figures/lab01_vaccination_coverage.png</code></pre>
+<p>Use:</p>
+<ul>
+<li>width of 8 inches,</li>
+<li>height of 6 inches,</li>
+<li>resolution of 300 dpi.</li>
+</ul>
+<section id="reloading-these-libraries-so-the-vaccination-plot-works." class="level2">
+<h2 class="anchored" data-anchor-id="reloading-these-libraries-so-the-vaccination-plot-works.">Reloading these libraries so the vaccination plot works.</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> <span class="fu">here</span>(<span class="st">".."</span>, <span class="st">"Figures"</span>, <span class="st">"lab01_vaccination_coverage.png"</span>),</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> vaccination_plot,</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">8</span>,</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">6</span>,</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"in"</span>,</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">dpi =</span> <span class="dv">300</span></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Learned that inches are the default units for ggsave!</strong></p>
+</section>
+</section>
+<section id="part-14-independent-visualization" class="level1">
+<h1>Part 14: Independent Visualization</h1>
+<p>Create one additional visualization using the same dataset.</p>
+<p>Choose one:</p>
+<ul>
+<li>scatterplot of adult population and asthma visits,</li>
+<li>bar chart of mean vaccination coverage by region,</li>
+<li>dot plot of asthma visit rates by county,</li>
+<li>or another instructor-approved graph.</li>
+</ul>
+<p>Requirements:</p>
+<ul>
+<li>Store the graph as <code>independent_plot</code>.</li>
+<li>Include an informative title and subtitle.</li>
+<li>Label both axes clearly.</li>
+<li>Add a caption identifying the data as simulated.</li>
+<li>Use a readable theme.</li>
+</ul>
+<section id="scatterplot-of-adult-population" class="level2">
+<h2 class="anchored" data-anchor-id="scatterplot-of-adult-population">Scatterplot of Adult Population</h2>
+<p><strong>This particular choice will let us form a visualization that is a different graph type and also shows a relationship.</strong></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>independent_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  county_health_data,</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">x=</span>adult_population,</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> asthma_visits</span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(</span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">4</span>,</span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"#5d3847"</span></span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(</span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">METHOD =</span> <span class="st">"lm"</span>,</span>
+<span id="cb42-14"><a href="#cb42-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">se =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb42-15"><a href="#cb42-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"#E30B5D"</span></span>
+<span id="cb42-16"><a href="#cb42-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb42-17"><a href="#cb42-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb42-18"><a href="#cb42-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Adult Population and Asthma Visits Across Fictional Counties"</span>,</span>
+<span id="cb42-19"><a href="#cb42-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Relationship between county population size and simulated asthma-related visits"</span>,</span>
+<span id="cb42-20"><a href="#cb42-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Adult Population"</span>,</span>
+<span id="cb42-21"><a href="#cb42-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Asthma Visits"</span>,</span>
+<span id="cb42-22"><a href="#cb42-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Data are simulated."</span></span>
+<span id="cb42-23"><a href="#cb42-23" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb42-24"><a href="#cb42-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in geom_smooth(METHOD = "lm", se = TRUE, color = "#E30B5D"): Ignoring
+unknown parameters: `METHOD`</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>independent_plot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using method = 'loess' and formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="lab_01_reproducible_visualization_workflow_files/figure-html/independent-visualization-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption>Independent visualization created by the student.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="part-15-save-the-independent-figure" class="level1">
+<h1>Part 15: Save the Independent Figure</h1>
+<p>Save the graph as:</p>
+<pre class="text"><code>figures/lab01_independent_visualization.png</code></pre>
+<p>Use:</p>
+<ul>
+<li>width of 8 inches,</li>
+<li>height of 5 inches,</li>
+<li>resolution of 300 dpi.</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> <span class="fu">here</span>(<span class="st">"Figures"</span>, <span class="st">"lab01_independent_visualization.png"</span>),</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> independent_plot,</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">8</span>,</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">5</span>,</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">units =</span> <span class="st">"in"</span>,</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">dpi =</span> <span class="dv">300</span></span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using method = 'loess' and formula = 'y ~ x'</code></pre>
+</div>
+</div>
+</section>
+<section id="part-16-tidy-coding-check" class="level1">
+<h1>Part 16: Tidy Coding Check</h1>
+<p>Review your code and confirm:</p>
+<ul class="task-list">
+<li><label><input type="checkbox"><code>%&gt;%</code> is used instead of the native pipe</label></li>
+<li><label><input type="checkbox">one major function appears per line</label></li>
+<li><label><input type="checkbox">arguments are indented consistently</label></li>
+<li><label><input type="checkbox">object names are descriptive</label></li>
+<li><label><input type="checkbox">no <code>setwd()</code> appears</label></li>
+<li><label><input type="checkbox">no absolute file paths appear</label></li>
+<li><label><input type="checkbox">code chunks have labels</label></li>
+</ul>
+</section>
+<section id="part-17-git-and-github" class="level1">
+<h1>Part 17: Git and GitHub</h1>
+<p>Complete the following:</p>
+<ol type="1">
+<li>Open the Git pane.</li>
+<li>Review the changed files.</li>
+<li>Stage the files associated with this lab.</li>
+<li>Commit using a meaningful message.</li>
+<li>Push to GitHub.</li>
+<li>Open the repository online and verify that the files appear.</li>
+</ol>
+<p>Suggested commit message:</p>
+<pre class="text"><code>Complete Lab 1 reproducible workflow</code></pre>
+</section>
+<section id="reflection-questions" class="level1">
+<h1>Reflection Questions</h1>
+<p>Answer each question in complete sentences.</p>
+<section id="question-1" class="level2">
+<h2 class="anchored" data-anchor-id="question-1">Question 1</h2>
+<p>Why is reproducibility important in public health research and practice?</p>
+<p><strong>Response:</strong></p>
+</section>
+<section id="question-2" class="level2">
+<h2 class="anchored" data-anchor-id="question-2">Question 2</h2>
+<p>How does a consistent project structure improve collaboration and review?</p>
+<p><strong>Response:</strong></p>
+</section>
+<section id="question-3" class="level2">
+<h2 class="anchored" data-anchor-id="question-3">Question 3</h2>
+<p>Why are relative paths preferable to absolute paths?</p>
+<p><strong>Response:</strong></p>
+</section>
+<section id="question-4" class="level2">
+<h2 class="anchored" data-anchor-id="question-4">Question 4</h2>
+<p>How does GitHub contribute to reproducibility?</p>
+<p><strong>Response:</strong></p>
+</section>
+<section id="question-5" class="level2">
+<h2 class="anchored" data-anchor-id="question-5">Question 5</h2>
+<p>What was the most challenging part of the lab?</p>
+<p><strong>Response:</strong></p>
+</section>
+</section>
+<section id="deliverables" class="level1">
+<h1>Deliverables</h1>
+<p>Submit or push:</p>
+<ul class="task-list">
+<li><label><input type="checkbox">completed student lab QMD</label></li>
+<li><label><input type="checkbox">rendered HTML file</label></li>
+<li><label><input type="checkbox"><code>data/county_health_data.csv</code></label></li>
+<li><label><input type="checkbox"><code>figures/lab01_vaccination_coverage.png</code></label></li>
+<li><label><input type="checkbox"><code>figures/lab01_independent_visualization.png</code></label></li>
+<li><label><input type="checkbox">completed reflections</label></li>
+<li><label><input type="checkbox">meaningful Git commit</label></li>
+<li><label><input type="checkbox">updated GitHub repository</label></li>
+</ul>
+</section>
+<section id="submission-checklist" class="level1">
+<h1>Submission Checklist</h1>
+<p>Before submitting, confirm:</p>
+<ul class="task-list">
+<li><label><input type="checkbox">the project opens from the <code>.Rproj</code> file</label></li>
+<li><label><input type="checkbox">the QMD renders without errors</label></li>
+<li><label><input type="checkbox">all required folders exist</label></li>
+<li><label><input type="checkbox">the dataset is inside <code>data/</code></label></li>
+<li><label><input type="checkbox">relative paths are used</label></li>
+<li><label><input type="checkbox">both visualizations display correctly</label></li>
+<li><label><input type="checkbox">both figures are saved inside <code>figures/</code></label></li>
+<li><label><input type="checkbox">reflections are complete</label></li>
+<li><label><input type="checkbox">work is committed and pushed</label></li>
+<li><label><input type="checkbox">no private or sensitive information was uploaded</label></li>
+</ul>
+</section>
+<section id="troubleshooting" class="level1">
+<h1>Troubleshooting</h1>
+</section>
+<section id="dataset-cannot-be-found" class="level1">
+<h1>Dataset Cannot Be Found</h1>
+<p>Check:</p>
+<ul>
+<li>file location,</li>
+<li>spelling,</li>
+<li>capitalization,</li>
+<li>project root,</li>
+<li>and use of <code>here()</code>.</li>
+</ul>
+</section>
+<section id="package-is-missing" class="level1">
+<h1>Package Is Missing</h1>
+<p>Install the package in the Console:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"package_name"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Do not place package-installation commands in the final lab.</p>
+</section>
+<section id="quarto-will-not-render" class="level1">
+<h1>Quarto Will Not Render</h1>
+<p>Read the first error message and check:</p>
+<ul>
+<li>commas,</li>
+<li>parentheses,</li>
+<li>quotation marks,</li>
+<li>object names,</li>
+<li>and package availability.</li>
+</ul>
+</section>
+<section id="git-pane-is-missing" class="level1">
+<h1>Git Pane Is Missing</h1>
+<p>Confirm:</p>
+<ul>
+<li>Git is installed,</li>
+<li>the project is a Git repository,</li>
+<li>and the correct project is open.</li>
+</ul>
+</section>
+<section id="stretch-challenge" class="level1">
+<h1>Stretch Challenge</h1>
+<p>Improve one graph by adding one of the following:</p>
+<ul>
+<li>direct labels,</li>
+<li>a colorblind-friendly palette,</li>
+<li>an annotation,</li>
+<li>or a meaningful highlight.</li>
+</ul>
+<p>Write two sentences explaining why the change improves communication.</p>
+</section>
+<section id="looking-ahead" class="level1">
+<h1>Looking Ahead</h1>
+<p>In Lab 2, you will use the Grammar of Graphics to build and compare several visualization types for different public health questions.</p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

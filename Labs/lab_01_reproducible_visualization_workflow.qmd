@@ -1,0 +1,771 @@
+
+```yaml
+---
+title: "Lab 1: Reproducible Data Visualization Workflow"
+author: "Chloe Smith"
+format: 
+html:
+  toc: true
+  code-copy: true
+  code-tools: true
+execute:
+  warning: false
+  message: false
+---
+```
+
+# Part 3: Load the Required Packages
+
+```{r}
+#| label: load-packages
+
+
+library("tidyverse")
+library("here")
+library("fs")
+```
+
+# Part 4: Confirm the Project Root
+
+```{r}
+#| label: confirm-project-root
+
+here()
+```
+
+Answer:
+
+1. What path was printed?
+**"/Users/chlsmith-25/Documents/DataVisualization/Labs"**
+
+2. Does it point to the correct course project?
+**Yes, the path points to the correct location for the course project and the Labs sub-folder where this assignment is stored.**
+
+3. Why is working from an R Project preferable to manually setting the working directory?
+**Working from an R Project keeps project files organized under a consistent directory and makes file paths easier to manage. This improves reproducibility because files can be referenced relative to the project instead of requiring manual or sporadic changes to the directory** 
+
+
+
+# Part 5: Create the Folder Structure
+
+Create the following folders:
+
+```text
+data
+figures
+scripts
+tables
+assignments
+labs
+portfolio
+```
+
+Use a character vector and a tidy workflow rather than repeating `dir.create()` seven times.
+
+## Added Tool for my Personal Understanding
+
+**The required course folders were created previously in the main DataVisualization folder. Because this lab is stored within the Labs subfolder, ".." moves up one level to the main course folder before confirming or creating the required directories.**
+
+```{r}
+#| label: create-folder-structure
+
+folders <- c(
+  "data",
+  "figures",
+  "scripts",
+  "tables",
+  "assignments",
+  "labs",
+  "portfolio"
+)
+folders %>%
+  walk(~ dir_create(here("..",.x)))
+```
+
+Confirm that the folders appear in the Files pane.
+
+# Part 6: Inspect the Folder Structure
+
+Use `dir_ls()` to list the top-level contents of the project.
+
+```{r}
+#| label: inspect-folder-structure1
+
+dir_ls()
+
+```
+## Adjusting the code to list top level project contents
+```{r}
+#| label: inspect-folder-structure2
+dir_ls(here(".."))
+```
+
+
+# Part 7: Create a Simulated Public Health Dataset
+
+Create a reproducible county-level dataset with the following variables:
+
+
+- Include 12 fictional counties.
+**Schnauzer County, Quarto County, Clifton County, Creek County, Midtown County, Cascade County, Mustard County, Hydrant County, Dove County, French County, Green County, Corinth County**
+
+- Include three regions: North, Central, and South.
+**North Region, Central Region, South Region**
+
+- Use `set.seed(716)`.
+- Generate plausible values for population, visits, and vaccination coverage.
+- Calculate asthma visit rate per 100,000.
+- Round the rate to one decimal place.
+- Use tidy formatting.
+
+# Because we don't want to manually generate random values for 12 counties, we're going to generate codes for random selection. Each requested category will have its own code chunk instead of one large chunk to reduce errors and gradually build the dataset.
+
+## Counties
+```{r}
+#| label: create-simulated-health-data
+
+set.seed(716)
+
+county_health_data <- tibble(
+  county = c(
+    "Schauzer County",
+    "Quarto County",
+    "Clifton County",
+    "Creek County",
+    "Midtown County",
+    "Cascade County",
+    "Mustard County",
+    "Hydrant County",
+    "Dove County",
+    "French County",
+    "Green County",
+    "Corinth County"
+),
+)
+```
+
+## Regions
+```{r}
+#| label: creating-regions
+
+
+county_health_data <- county_health_data %>%
+  mutate(
+region = rep(
+    c("North", "Central", "South"),
+    each = 4
+  )
+)
+```
+
+## Populations
+**Assigning each county a random adult population between 40,000 and 180,000**
+```{r}
+#| label: assinging-random-population-amounts-to-counties
+
+
+county_health_data <- county_health_data %>%
+  mutate(
+adult_population = sample(
+  40000:180000,
+  12
+  )
+)
+```
+
+## Vaccination Rates
+**Assigning vaccination coverage between 62% and 94%**
+```{r}
+#| label: Assigning-vaccination-coverage-between-fixed-percentages
+
+
+county_health_data <- county_health_data %>%
+  mutate(
+vaccination_rate = round(
+  runif(
+    12,
+    min = 62,
+    max = 94
+  ),
+  1
+)
+)
+```
+
+## Asthma Rates Per 100,000
+**Generating asthma visits proportionally with "runif"**
+**Calculating asthma visit rate per 100,000 people**
+```{r}
+#| label: Calculating-asthma-rates-per-population-proportion
+
+
+county_health_data <- county_health_data %>%
+  mutate(
+    asthma_visits = round(
+      adult_population * runif(
+        12,
+        min = 0.004,
+        max = 0.018
+     )
+      ),
+    
+  asthma_visit_rate = round(
+    asthma_visits / adult_population * 100000,
+    1
+  )
+  )
+```
+
+
+Display the completed dataset.
+
+# Part 8: Save the Dataset
+
+Save the dataset as:
+
+```text
+data/county_health_data.csv
+```
+
+## Saving the dataset to the Data folder
+```{r}
+#| label: save-simulated-health-data
+
+
+write_csv(
+  county_health_data,
+  here("Data", "county_health_data.csv")
+)
+```
+
+Confirm that the CSV file appears inside `data/`.
+
+# Part 9: Remove and Re-Import the Dataset
+
+Remove the object from the environment.
+
+```{r}
+#| label: remove-health-data
+
+rm(county_health_data)
+```
+
+Then re-import the CSV file using `read_csv()` and `here()`.
+
+```{r}
+#| label: import-health-data
+
+county_health_data <- read_csv(
+  here("Data", "county_health_data.csv")
+)
+```
+
+# Part 10: Inspect the Data
+
+Use `glimpse()`.
+
+```{r}
+#| label: inspect-health-data
+
+glimpse(county_health_data)
+```
+
+Create a one-row summary containing:
+
+- number of counties,
+- mean vaccination rate,
+- median asthma visit rate.
+
+```{r}
+#| label: summarize-health-data
+
+county_health_data %>%
+  summarize(
+    number_of_counties = n(),
+    mean_vaccination_rate = mean(vaccination_rate),
+    median_asthma_visit_rate = median(asthma_visit_rate)
+  )
+```
+
+Answer:
+
+1. What does one row represent?
+**One row represents one county and the correlating data.**
+
+2. How many variables are included?
+**There are three variables included. in the summary. There are six variables total.**
+
+3. Which variables are categorical?
+**None of the variables shown are categorical. However, considering the entire data set, county name and region are categorical. **
+
+4. Which variables are numeric?
+**All three shown variables are numeric. Considering the entire data set, number of counties, mean vaccination rate, and median asthma visit rate are numeric**
+
+5. Which variable should be used to compare asthma burden fairly across counties?
+**Asthma visit rate should be used because it expresses asthma visits per 100,000 adults.**
+
+# Part 11: Create a Ranked Vaccination Bar Chart
+
+Create a horizontal bar chart ranking counties by vaccination coverage.
+
+Requirements:
+
+- Reorder counties by vaccination rate.
+- Add a dashed reference line at 80%.
+- Use an informative title and subtitle.
+- Label the y-axis as vaccination coverage.
+- State that the values are simulated.
+- Use a readable theme.
+- Store the graph as `vaccination_plot`.
+#Running Package Chunk Again
+```{r}
+#| label: Reloading-datasets
+
+
+library(tidyverse)
+library(here)
+library(fs)
+```
+
+
+## Creating and saving the graph under "Vaccination Plot"
+```{r}
+#| label: create-vaccination-plot
+#| fig-cap: "Simulated vaccination coverage by county."
+#| fig-alt: "Horizontal bar chart ranking fictional counties by simulated vaccination coverage."
+
+vaccination_plot <- ggplot(
+  county_health_data,
+  aes(
+    x = vaccination_rate,
+    y = reorder(county, vaccination_rate)
+  )
+) +
+  geom_col()
+```
+
+## Adding the 80% line
+```{r}
+#| label: Add-percentage-line
+
+
+vaccination_plot <- vaccination_plot +
+  geom_vline(
+    xintercept = 80,
+    linetype = "dashed"
+  )
+```
+
+## Adding Labels
+```{r}
+#| label: Add-labels
+
+vaccination_plot <- vaccination_plot +
+    labs(
+    title = "Vaccination Coverage Across Fictional Counties",
+    subtitle = "County vaccination coverage compared with an 80% reference level",
+    x = "Vaccination Coverage (%)",
+    y = NULL,
+    caption = "Values are simulated."
+  ) +
+  theme_minimal()
+
+vaccination_plot
+```
+### Creating a target category
+We're adding a variable to indicate whether each county is at/above 80% or below 80%
+```{r}
+#| label: creating-percentage-variable
+
+
+county_health_data <- county_health_data %>%
+  mutate(
+    vaccination_status = if_else(
+      vaccination_rate >= 80,
+      "Meets 80% Target",
+      "Below 80% Target"
+    )
+  )
+```
+
+### Updating the graph
+```{r}
+#| label: updating-graph
+
+
+vaccination_plot <- ggplot(
+  county_health_data,
+  aes(
+    x = vaccination_rate,
+    y = reorder(county, vaccination_rate),
+    fill = vaccination_status
+  )
+) +
+  geom_col()
+```
+
+### Color Coding the graph
+```{r}
+#| label: Color-coding-graph
+vaccination_plot <- vaccination_plot +
+  scale_fill_manual(
+    values = c(
+      "Below 80% Target" = "#DEF67C",
+      "Meets 80% Target" = "#E0F0FF"
+    ),
+ 
+  name = "Vaccination Status"
+  )
+
+vaccination_plot
+```
+
+### Adding black borders
+```{r}
+#| label: Adding-black-borders
+
+
+vaccination_plot <- ggplot(
+  county_health_data,
+  aes(
+    x = vaccination_rate,
+    y = reorder(county, vaccination_rate),
+    fill = vaccination_status
+  )
+) +
+  geom_col(
+    color = "black"
+  ) +
+  scale_fill_manual(
+    name = "Vaccination Status",
+    values = c(
+      "Below 80% Target" = "#DEF67C",
+      "Meets 80% Target" = "#E0F0FF"
+    )
+  )
+
+vaccination_plot
+```
+### Changing the Axes
+```{r}
+#| label: Changing-graph-axes
+
+
+vaccination_plot <- ggplot(
+  county_health_data,
+  aes(
+    x = vaccination_rate,
+    y = reorder(county, vaccination_rate),
+    fill = vaccination_status
+  )
+) +
+  geom_col(
+    color = "black"
+  ) +
+  scale_fill_manual(
+    name = "Vaccination Status",
+    values = c(
+      "Below 80% Target" = "#DEF67C",
+      "Meets 80% Target" = "#E0F0FF"
+    )
+  ) +
+  labs(
+    x = "Vaccination Coverage (%)",
+    y = "County"
+  )
+
+vaccination_plot
+```
+### Re Adding the 80% reference line and subtitles
+```{r}
+#| label: readding-reference-line-and-subtitles
+
+
+vaccination_plot <- vaccination_plot +
+  geom_vline(
+    xintercept = 80,
+    linetype = "dashed"
+  ) +
+  labs(
+    title = "Vaccination Coverage Across Fictional Counties",
+    subtitle = "County vaccination coverage compared with an 80% reference level",
+    caption = "Values are simulated."
+  ) +
+  theme_minimal()
+
+vaccination_plot
+```
+# Part 12: Interpret the Figure
+
+Answer in two or three complete sentences.
+
+1. What pattern does the figure show?
+2. Which counties appear furthest below the target?
+3. What context would be required before using this graph for a real decision?
+
+**The figure shows differences in simulated vaccination coverage across the 12 counties, with only Corinth County and French County reaching the 80% target. Green County and Dove County are furthest below the target, while Quarto County comes very close to meeting it. Before using this graph to guide a real decision, more information would be needed about the population of each county, the source and quality of the vaccination data, and factors that could contribute to differences in coverage.**
+
+# Part 13: Save the Vaccination Figure
+
+Save the graph as:
+
+```text
+figures/lab01_vaccination_coverage.png
+```
+
+Use:
+
+- width of 8 inches,
+- height of 6 inches,
+- resolution of 300 dpi.
+
+## Reloading these libraries so the vaccination plot works.
+```{r}
+#| label: reloading-libraries
+
+
+library(tidyverse)
+library(here)
+library(fs)
+```
+
+```{r}
+#| label: save-vaccination-plot
+
+ggsave(
+  filename = here("..", "Figures", "lab01_vaccination_coverage.png"),
+  plot = vaccination_plot,
+  width = 8,
+  height = 6,
+  units = "in",
+  dpi = 300
+)
+```
+**Learned that inches are the default units for ggsave!**
+
+# Part 14: Independent Visualization
+
+Create one additional visualization using the same dataset.
+
+Choose one:
+
+- scatterplot of adult population and asthma visits,
+- bar chart of mean vaccination coverage by region,
+- dot plot of asthma visit rates by county,
+- or another instructor-approved graph.
+
+Requirements:
+
+- Store the graph as `independent_plot`.
+- Include an informative title and subtitle.
+- Label both axes clearly.
+- Add a caption identifying the data as simulated.
+- Use a readable theme.
+
+## Scatterplot of Adult Population
+
+**This particular choice will let us form a visualization that is a different graph type and also shows a relationship.**
+```{r}
+#| label: independent-visualization
+#| fig-cap: "Independent visualization created by the student."
+
+independent_plot <- ggplot(
+  county_health_data,
+  aes(
+    x=adult_population,
+    y = asthma_visits
+  )
+) +
+  geom_point(
+    size = 4,
+    color = "#5d3847"
+  ) +
+  geom_smooth(
+    METHOD = "lm",
+    se = TRUE,
+    color = "#E30B5D"
+  ) +
+  labs(
+    title = "Adult Population and Asthma Visits Across Fictional Counties",
+    subtitle = "Relationship between county population size and simulated asthma-related visits",
+    x = "Adult Population",
+    y = "Asthma Visits",
+    caption = "Data are simulated."
+  ) +
+  theme_minimal()
+
+independent_plot
+```
+
+# Part 15: Save the Independent Figure
+
+Save the graph as:
+
+```text
+figures/lab01_independent_visualization.png
+```
+
+Use:
+
+- width of 8 inches,
+- height of 5 inches,
+- resolution of 300 dpi.
+
+```{r}
+#| label: save-independent-visualization
+ggsave(
+  filename = here("Figures", "lab01_independent_visualization.png"),
+  plot = independent_plot,
+  width = 8,
+  height = 5,
+  units = "in",
+  dpi = 300
+)
+
+```
+
+# Part 16: Tidy Coding Check
+
+Review your code and confirm:
+
+- [ ] `%>%` is used instead of the native pipe
+- [ ] one major function appears per line
+- [ ] arguments are indented consistently
+- [ ] object names are descriptive
+- [ ] no `setwd()` appears
+- [ ] no absolute file paths appear
+- [ ] code chunks have labels
+
+# Part 17: Git and GitHub
+
+Complete the following:
+
+1. Open the Git pane.
+2. Review the changed files.
+3. Stage the files associated with this lab.
+4. Commit using a meaningful message.
+5. Push to GitHub.
+6. Open the repository online and verify that the files appear.
+
+Suggested commit message:
+
+```text
+Complete Lab 1 reproducible workflow
+```
+
+# Reflection Questions
+
+Answer each question in complete sentences.
+
+## Question 1
+
+Why is reproducibility important in public health research and practice?
+
+**Response:**  
+
+## Question 2
+
+How does a consistent project structure improve collaboration and review?
+
+**Response:**  
+
+## Question 3
+
+Why are relative paths preferable to absolute paths?
+
+**Response:**  
+
+## Question 4
+
+How does GitHub contribute to reproducibility?
+
+**Response:**  
+
+## Question 5
+
+What was the most challenging part of the lab?
+
+**Response:**  
+
+# Deliverables
+
+Submit or push:
+
+- [ ] completed student lab QMD
+- [ ] rendered HTML file
+- [ ] `data/county_health_data.csv`
+- [ ] `figures/lab01_vaccination_coverage.png`
+- [ ] `figures/lab01_independent_visualization.png`
+- [ ] completed reflections
+- [ ] meaningful Git commit
+- [ ] updated GitHub repository
+
+# Submission Checklist
+
+Before submitting, confirm:
+
+- [ ] the project opens from the `.Rproj` file
+- [ ] the QMD renders without errors
+- [ ] all required folders exist
+- [ ] the dataset is inside `data/`
+- [ ] relative paths are used
+- [ ] both visualizations display correctly
+- [ ] both figures are saved inside `figures/`
+- [ ] reflections are complete
+- [ ] work is committed and pushed
+- [ ] no private or sensitive information was uploaded
+
+# Troubleshooting
+
+# Dataset Cannot Be Found
+
+Check:
+
+- file location,
+- spelling,
+- capitalization,
+- project root,
+- and use of `here()`.
+
+# Package Is Missing
+
+Install the package in the Console:
+
+```r
+install.packages("package_name")
+```
+
+Do not place package-installation commands in the final lab.
+
+# Quarto Will Not Render
+
+Read the first error message and check:
+
+- commas,
+- parentheses,
+- quotation marks,
+- object names,
+- and package availability.
+
+# Git Pane Is Missing
+
+Confirm:
+
+- Git is installed,
+- the project is a Git repository,
+- and the correct project is open.
+
+# Stretch Challenge
+
+Improve one graph by adding one of the following:
+
+- direct labels,
+- a colorblind-friendly palette,
+- an annotation,
+- or a meaningful highlight.
+
+Write two sentences explaining why the change improves communication.
+
+# Looking Ahead
+
+In Lab 2, you will use the Grammar of Graphics to build and compare several visualization types for different public health questions.
