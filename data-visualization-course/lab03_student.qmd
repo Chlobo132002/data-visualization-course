@@ -1,0 +1,378 @@
+---
+title: "Lab 3: Data Wrangling for Visualization"
+subtitle: "Student Version"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-copy: true
+    code-tools: true
+execute:
+  eval: true
+  warning: false
+  message: false
+---
+
+# Learning Objectives
+
+You will clean, reshape, summarize, and join public health data before visualization.
+
+# Setup
+
+Load `tidyverse`.
+
+```{r}
+#| label: load-packages
+#| 
+library(tidyverse)
+```
+
+# Part 1: Create Raw Data
+
+Create `raw_health_data` with at least eight counties, region, 2023 and 2024 population and case columns, one duplicate county, and one missing value.
+
+```{r}
+#| label: raw-data
+# Fictional data created for instructional purposes
+
+raw_health_data <- tibble(
+  county = c(
+    "Cook", "DuPage", "Lake", "Will", "Kane", "Winnebago", "Sangamon", "Peoria", "Cook"
+  ),
+  region = c(
+    "Northeast", "Northeast", "Northeast", "Northeast", "Northeast", "North", "Central", "Central", "Northeast"
+  ),
+  population_2023 = c(
+    5100000, 930000, 710000, 700000, 515000, 285000, 195000, 180000, 5100000
+  ),
+  cases_2023 = c(
+    2550, 390, 315, 280, 225, 140, 105, 95, 2250
+  ),
+  population_2024 = c(
+    5080000, 935000, 715000, 705000, 520000, 287000, 196000, 181000, 5080000
+  ),
+  cases_2024 = c(
+    2480, 405, 325, NA, 235, 145, 110, 98, 2480
+  )
+)
+```
+
+# Part 2: Diagnose
+
+Use `glimpse()`, duplicate checks, and missing-value summaries.
+
+```{r}
+#| label: diagnose-data
+ 
+# Check for duplicate rows
+raw_health_data %>%
+  count(county) %>%
+  filter(n>1)
+
+# Check for missing values
+raw_health_data %>%
+  summarise(
+    across(everything(), ~sum(is.na(.)))
+  )
+
+```
+
+*This code counts how many times each county appears, and requests that only the counties that appear more than once. While asking how many values are missing for every column in the dataset.*
+
+# Part 3: Remove Duplicates
+
+Create `health_data_clean` with one row per county.
+
+```{r}
+#| label: remove-duplicates
+
+clean_health_data <- raw_health_data %>%
+  distinct()
+
+nrow(raw_health_data)
+nrow(clean_health_data)
+
+```
+*Distinct directs one row to be kept if two are completely identical. Nrows are verification steps to check that the dataset went from 9 to 8 observations.*
+
+```{r}
+clean_health_data <- raw_health_data %>%
+  distinct(county, .keep_all=TRUE)
+
+nrow(raw_health_data)
+nrow(clean_health_data)
+```
+*Slightly changing the code. "keep all = TRUE" directs to keep all of the row's other variables as well.*
+
+# Part 4: Reshape Long
+
+Create county, region, year, population, and cases columns.
+
+```{r}
+#| label: reshape-long
+
+long_health_data <- clean_health_data %>%
+  pivot_longer(
+    cols= c(
+      population_2023,
+      cases_2023,
+      population_2024,
+      cases_2024
+    ),
+    names_to = c(".value", "year"),
+    names_sep = "_"
+  ) %>%
+  mutate(
+    year = as.integer(year)
+  )
+
+long_health_data
+```
+
+# Part 5: Calculate Rates
+
+Calculate cases per 100,000.
+
+```{r}
+#| label: calculate-rates
+
+long_health_data <- long_health_data %>%
+  mutate(
+    case_rate = (cases / population) * 100000
+  )
+
+long_health_data
+```
+
+# Part 6: Summarize
+
+Calculate mean rate by region and year.
+
+```{r}
+#| label: summarize-region
+
+regional_summary <- long_health_data %>%
+  group_by(region, year)%>%
+  summarise(
+    mean_case_rate = mean(case_rate,na.rm = TRUE),
+    .groups = "drop"
+  )
+regional_summary
+```
+
+# Part 7: Join Contextual Data
+
+Create a county rural-status table and join it with `left_join()`. Check duplicates, unmatched rows, and row counts.
+
+```{r}
+#| label: join-data
+
+rural_status_data <- tibble(
+  county = c(
+    "Cook", "DuPage", "Lake", "Will", "Kane", "Winnebago", "Sangamon", "Peoria"
+  ),
+  rural_status = c(
+    "Urban", "Urban", "Urban", "Urban", "Urban", "Urban", "Mixed","Mixed"
+     )
+)
+
+joined_health_data <- long_health_data %>%
+  left_join(
+    rural_status_data,
+    by = "county"
+  )
+
+joined_health_data
+```
+```{r}
+# Check row counts before and after the join
+nrow(long_health_data)
+nrow(joined_health_data)
+
+# Check for unmatched counties
+joined_health_data %>%
+  filter(is.na(rural_status))
+
+# Check for duplicate county-year combinations
+joined_health_data %>%
+  count(county, year) %>%
+  filter(n > 1)
+```
+
+# Part 8: Visualize
+
+## Graph #1 - County Level
+Create a regional line graph, ranked 2024 county graph, and rural-status comparison.
+
+```{r}
+#| label: visualizations1
+#| fig-cap: "Case rates per 100,000 population across Illinois counties in 2024."
+
+joined_health_data %>%
+  filter(year == 2024) %>%
+  ggplot(
+    aes(
+      x = reorder(county, case_rate),
+      y = case_rate
+    )
+  ) +
+  geom_col(fill = "#90A76A", na.rm = TRUE) +
+  coord_flip()+
+  labs(
+    title = "Case Rates Across Illinois Counties in 2024",
+    subtitle = "Rates are reported per 100,000 populaiton",
+  ) +
+  theme_minimal()
+```
+### Removing coord_flip() to fix the axis labels
+```{r}
+#| label: visualizations2
+#| fig-cap: "Case rates per 100,000 population across Illinois counties in 2024."
+
+joined_health_data %>%
+  filter(year == 2024) %>%
+  ggplot(
+    aes(
+      x = case_rate,
+      y = reorder(county, case_rate)
+    )
+  ) +
+  geom_col(fill= "#90A76A", na.rm = TRUE) +
+  labs(
+    title = "Case Rate Across Illinois Counties in 2024",
+    subtitle = "Rates are reported per 100,000 population",
+    x = "Case Rate per 100,000",
+    y = "County"
+  )+
+  
+  theme_minimal()
+```
+### Adding 2024 Data
+```{r}
+#| label: county-comparison
+#| fig-cap: "Case rates per 100,000 population across selected Illinois counties in 2023 and 2024."
+
+joined_health_data %>%
+  mutate(
+    year = factor(year)
+  ) %>%
+  ggplot(
+    aes(
+      x = case_rate,
+      y = county,
+      fill = year
+    )
+  ) +
+  geom_col(
+    position = "dodge",
+    na.rm = TRUE
+  ) +
+  scale_fill_manual(
+    values = c(
+    "2023" = "#E7F7CA",
+    "2024" = "#90A76A"
+    )
+  ) +
+  labs( 
+    title = "Case Rates Across Illinos Counties, 2023-2024",
+    subtitle = "Rates area reported per 100,000 population",
+    x = "Case Rate per 100,000",
+    y = "County",
+    fill = "Year"
+    ) +
+  theme_minimal()
+
+```
+**The county-level comparison shows differences in case rates per 100,000 population across eight selected Illinois counties between 2023 and 2024. Overall, most counties experienced a slight increase in case rates from 2023 to 2024, including DuPage, Lake, Kane, Winnebago, Sangamon, and Peoria counties. Cook County was the exception, showing a small decrease from approximately 50 cases per 100,000 in 2023 to 49 cases per 100,000 in 2024. Sangamon County had the highest case rate in both years, while DuPage County had the lowest among counties with complete data. Will County's 2024 rate is not displayed because its 2024 case count was intentionally recorded as missing in the instructional dataset. Using rates rather than raw case counts allows for a more meaningful comparison across counties with substantially different population sizes.**
+
+## Graph 2 - Regional Summary
+```{r}
+#| label: regional-comparison
+#| fig-cap: "Mean case rates per 100,000 population across Illinois regions in 2023 and 2024."
+
+regional_summary %>%
+  mutate(
+    year = factor(year)
+  ) %>%
+  ggplot(
+    aes(
+      x = mean_case_rate,
+      y = region,
+      fill = year
+    )
+  ) +
+  geom_col(
+    position = "dodge"
+  ) +
+  scale_fill_manual(
+    values = c(
+      "2023" = "#E1EDFF",
+      "2024" = "#A9B4DB"
+    )
+  )+
+  labs(
+    title = "Mean Case Rates Across Illinois Regions, 2023-2024",
+    subtitle = "Regional means are reported per 100,000 population",
+    x = "Mean Case Rate per 100,000",
+    y = " Region",
+    fill = "Year"
+  ) +
+  
+  theme_minimal()
+
+
+```
+*The regional comparison shows the mean case rate per 100,000 population across the Central, North, and Northeast regions of the selected Illinois counties in 2023 and 2024. The Central region had the highest mean case rate in both years, increasing from approximately 53.3 cases per 100,000 in 2023 to 55.1 in 2024. The North region also experienced a slight increase, from approximately 49.1 to 50.5 cases per 100,000. The Northeast region had the lowest mean case rate in both years but similarly increased from approximately 44.0 cases per 100,000 in 2023 to 45.7 in 2024. Overall, the visualization shows a modest increase in mean case rates across all three regions while the relative ranking of the regions remained consistent.*
+
+## Graph 3 - Rural-status comparison
+```{r}
+#| label: rural-status-comparison
+#| fig-cap: "Mean case rates per 100,000 population by rural status in 2023 and 2024 using fictional instructional data."
+
+rural_summary <- joined_health_data %>%
+  group_by(rural_status, year) %>%
+  summarise(
+    mean_case_rate = mean(case_rate, na.rm = TRUE),
+    .group = "drop"
+  )
+rural_summary %>%
+  mutate(
+  year = factor(year)
+  ) %>%
+  ggplot (
+    aes( 
+      x = mean_case_rate,
+      y = rural_status,
+      fill = year
+      )
+  ) +
+  geom_col(
+    position = "dodge"
+  ) +
+  scale_fill_manual(
+    values= c(
+      "2023" = "#FDDDE6",
+      "2024" = "#FF007F"
+    )
+  ) +
+  labs (
+    title = "Means Case Rates by Rural Status, 2023-2024",
+    subtitle = " Rates are reported per 100,000 population",
+    x = "Mean Case Rate per 100,000",
+    y = "Rural Status", 
+    fill = "Year"
+  ) +
+  
+  theme_minimal()
+```
+*The rural-status comparison shows differences in mean case rates per 100,000 population between counties classified as Urban and Mixed in the instructional dataset. Counties classified as Mixed had higher mean case rates than Urban counties in both 2023 and 2024. Both rural-status categories also experienced an increase in mean case rates from 2023 to 2024, although the overall difference between the categories remained visible across both years. These findings demonstrate how adding contextual information through a data join can allow health outcomes to be compared across community characteristics. Because these data are fictional and the rural-status categories are instructional classifications, the visualization is intended to demonstrate the analytic workflow rather than represent actual differences among Illinois communities.*
+
+# Reflection
+
+Explain why long format was useful, what causes row multiplication during joins, and why rates are preferable to counts.
+
+*Long format was useful because it organized the data so that each row represented one county for one year rather than storing different years in separate columns. This made it easier to group, summarize, and visualize the data using variables such as year, region, and rural status. It was especially helpful when creating the visualizations because 2023 and 2024 could be mapped to different colors using the same year variable instead of requiring separate code for each year.*
+
+*Row multiplication can occur when the variable used to join two data sets is not unique in one or both data sets. If a county appears multiple times in the contextual data set, for example, one observation in the health data set may match multiple rows during the join and create additional records. This is why checking for duplicates before a join and comparing the number of rows before and after the join are important steps. In this lab, the row count remained the same after the join, which helped confirm that the contextual data were added without unintentionally multiplying observations.*
+
+*Rates are preferable to raw counts when comparing populations of different sizes because counts do not account for the number of people who could experience the outcome. A large county such as Cook County may have more cases simply because it has a much larger population than another county. Calculating cases per 100,000 population creates a standard measure that allows counties to be compared more meaningfully. This helps distinguish differences in population size from differences in the relative frequency of the health outcome.*
