@@ -1,0 +1,64 @@
+
+---
+title: "Mapping Public Health in Georgia"
+subtitle: "Simulated Childhood Vaccination Coverage and Clinic Access"
+author: "Chloe A. Smith"
+format:
+  html:
+    toc: true
+    code-fold: true
+---
+
+## Project Overview
+
+This project explores how geographic information systems (GIS) can be used to visualize public health indicators across Georgia counties. Using R, I developed county-level choropleth maps and simulated clinic location maps to demonstrate how geographic visualization can support public health assessment and communication.
+
+All vaccination rates, population estimates, clinic locations, and visit volumes are simulated for educational purposes.
+
+## Data and Methods
+
+Georgia county boundaries were obtained using the `maps` R package and converted into spatial features using `sf`.
+
+A reproducible random seed was used to generate simulated childhood vaccination rates and child population estimates. These data were joined to county boundaries using geographic identifiers.
+
+Visualizations were developed using `ggplot2` and `leaflet`, including:
+
+- A continuous choropleth of simulated vaccination coverage
+- A classified choropleth using an illustrative 80% vaccination target
+- A point map of 20 hypothetical community clinics
+- A proportional-symbol map representing simulated annual clinic visits
+- An interactive county map with hover labels and a legend
+
+## Geographic Visualization
+
+The continuous choropleth illustrates variation in simulated vaccination coverage across Georgia counties.
+
+The classified choropleth distinguishes counties meeting or falling below an illustrative 80% target.
+
+The clinic maps demonstrate how point locations and proportional symbols can communicate the geographic distribution and relative volume of healthcare services.
+
+The interactive Leaflet map allows users to explore simulated county-level vaccination coverage and child population estimates.
+
+## Public Health Interpretation
+
+Geographic visualization can help public health professionals identify spatial patterns and communicate differences between communities. These methods may support decisions about outreach, resource allocation, and further investigation when applied to validated public health data.
+
+Because this project uses simulated values, the maps do not establish actual vaccination disparities or healthcare access patterns in Georgia.
+
+## Limitations and Ethical Considerations
+
+County-level averages may conceal important differences within individual communities. Interpreting county-level findings as individual characteristics can result in ecological fallacy.
+
+Small population sizes may produce unstable estimates, while missing data can affect geographic comparisons. Maps should also avoid stigmatizing communities or disclosing sensitive individual-level health information.
+
+The simulated clinic locations are geographic illustrations and do not represent actual healthcare facilities.
+
+## Accessibility
+
+Maps use descriptive titles, legends, and contrasting colors to support interpretation.
+
+Static maps and written descriptions provide noninteractive alternatives to the Leaflet visualization. Missing values should be represented separately from zero values.
+
+## Conclusion
+
+This project demonstrates how GIS methods can support public health data visualization and communication. Responsible interpretation, transparency about data sources, and accessible design are essential when using maps to inform public health practice.
